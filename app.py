@@ -119,7 +119,7 @@ def compare_files(uploaded_file):
 st.set_page_config(page_title="📁 File Tool", layout="wide")
 st.title("📁 File Uploader & Comparator")
 
-option = st.sidebar.radio("Choose Action", ["🔄 Structure File", "📊 Compare with Master"])
+option = st.sidebar.radio("Choose Action", ["🔄 Structure Master File", "📊 Compare with Master"])
 
 if option == "🔄 Structure Master File":
     st.subheader("Explode States and Upload to Azure")
