@@ -3,12 +3,12 @@ from io import BytesIO
 from dotenv import load_dotenv
 import os
 import pandas as pd
-from streamlit.runtime.secrets import secrets
+import streamlit as st
 
 load_dotenv()
 
-connection_string = secrets['AZURE_STORAGE_CONNECTION_STRING']
-container_name = secrets['AZURE_STORAGE_CONTAINER_NAME']
+connection_string = st.secrets['AZURE_STORAGE_CONNECTION_STRING']
+container_name = st.secrets['AZURE_STORAGE_CONTAINER_NAME']
 
 
 def get_storage_client(blob_name):
