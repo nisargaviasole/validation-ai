@@ -42,7 +42,8 @@ def download_from_storage() -> pd.DataFrame:
         buffer = BytesIO(blob_data.readall())
         
         df = pd.read_excel(buffer, engine="openpyxl")
-        
+        print("📦 DataFrame loaded from Azure:", df.shape if df is not None else "None returned")
+
         return df
     except Exception as e:
         return None
