@@ -46,6 +46,7 @@ def download_from_storage() -> pd.DataFrame:
 
         return df
     except Exception as e:
+        print("❌ Error downloading from Azure:", str(e))
         return None
 
     
