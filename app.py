@@ -70,7 +70,9 @@ def compare_files(uploaded_file):
 
             df_master = df_dict_master
             df_uploaded = clean_column_values(df_uploaded)
+            print(f"📄 Fill df_uploaded")
             df_master = clean_column_values(df_master)
+            print(f"📄 Fill df_master")
             compare_cols = ["Upline Agency", "Agent", "Agent NPN", "Line of Business", "Carrier", "States"]
 
             # Get only required columns
