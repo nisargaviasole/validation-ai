@@ -121,7 +121,7 @@ st.title("📁 File Uploader & Comparator")
 
 option = st.sidebar.radio("Choose Action", ["🔄 Structure File", "📊 Compare with Master"])
 
-if option == "🔄 Structure File":
+if option == "🔄 Structure Master File":
     st.subheader("Explode States and Upload to Azure")
     file = st.file_uploader("Upload CSV or Excel file", type=["csv", "xlsx"])
 
