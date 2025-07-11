@@ -1,31 +1,18 @@
+import streamlit as st
 import pandas as pd
-from fastapi import (
-    FastAPI,
-    HTTPException,
-    File,
-    UploadFile,
-    Form,
-    BackgroundTasks,
-    status,
-    Query,
-)
-from pydantic import BaseModel
-import os
+import asyncio
 from io import BytesIO
 from utils.data_extraction import *
+from fastapi import HTTPException  # needed for raising errors
 
-app = FastAPI()
 
-@app.post("/structure_file/")
-async def upload_csv(file: UploadFile = File(...)):
+def upload_csv(file):
     try:
-        content = await file.read()
-        file_extension = file.filename.split(".")[-1].lower()
-
+        file_extension = uploaded_file.name.split(".")[-1].lower()
         if file_extension == "xlsx":
-            df_dict = pd.read_excel(BytesIO(content), sheet_name=None, engine="openpyxl")
+            df_dict = pd.read_excel(uploaded_file, sheet_name=None, engine="openpyxl")
         else:
-            df_dict = {"Sheet1": pd.read_csv(BytesIO(content))}
+            df_dict = {"Sheet1": pd.read_csv(uploaded_file)}
 
         for sheet_name, df in df_dict.items():
             df.fillna("", inplace=True)
@@ -44,26 +31,20 @@ async def upload_csv(file: UploadFile = File(...)):
                 file_bytes=output,
             )
 
-            return {"message": "File uploaded successfully", "url": file_url}
+            return file_url
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/compare_file/")
-async def compare_files(file: UploadFile = File(...)):
+def compare_files(uploaded_file):
     try:
-        print("🔄 Reading uploaded file...")
-
-        content = await file.read()
-        file_extension = file.filename.split(".")[-1].lower()
+        file_extension = uploaded_file.name.split(".")[-1].lower()
 
         if file_extension == "xlsx":
-            df_dict = pd.read_excel(BytesIO(content), sheet_name=None, engine="openpyxl")
-            print("✅ Uploaded XLSX file read successfully.")
+            df_dict = pd.read_excel(uploaded_file, sheet_name=None, engine="openpyxl")
         else:
-            df_dict = {"Sheet1": pd.read_csv(BytesIO(content))}
-            print("✅ Uploaded CSV file read successfully.")
+            df_dict = {"Sheet1": pd.read_csv(uploaded_file)}
 
         print("⬇️ Downloading master file from storage...")
         df_dict_master = download_from_storage()
@@ -127,8 +108,48 @@ async def compare_files(file: UploadFile = File(...)):
             final_result["unmatched_uploaded"] = unmatched_uploaded_rows
 
         print("✅ Comparison completed.")
-        return {"status": "completed", "differences": final_result}
+        return final_result
 
     except Exception as e:
         print("❌ Error occurred:", str(e))
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# 🖥️ Streamlit UI
+st.set_page_config(page_title="📁 File Tool", layout="wide")
+st.title("📁 File Uploader & Comparator")
+
+option = st.sidebar.radio("Choose Action", ["🔄 Structure File", "📊 Compare with Master"])
+
+if option == "🔄 Structure File":
+    st.subheader("Explode States and Upload to Azure")
+    file = st.file_uploader("Upload CSV or Excel file", type=["csv", "xlsx"])
+
+    if file and st.button("Process and Upload"):
+        with st.spinner("Processing..."):
+            url = upload_csv(file) 
+            st.success("✅ File exploded and uploaded successfully.")
+            for name, url in urls:
+                st.markdown(f"📄 **{name}**: [Download File]({url})")
+
+elif option == "📊 Compare with Master":
+    st.subheader("Compare Uploaded File with Master File")
+    file = st.file_uploader("Upload file to compare", type=["csv", "xlsx"])
+
+    if file and st.button("Compare Now"):
+        with st.spinner("Comparing..."):
+            result = compare_files(file)
+
+            st.success("✅ Comparison Completed!")
+
+            if result["unmatched_master"]:
+                st.subheader("🟥 Unmatched in Master")
+                st.dataframe(pd.DataFrame(result["unmatched_master"]))
+            else:
+                st.info("✅ No unmatched rows in master.")
+
+            if result["unmatched_uploaded"]:
+                st.subheader("🟨 Unmatched in Uploaded File")
+                st.dataframe(pd.DataFrame(result["unmatched_uploaded"]))
+            else:
+                st.info("✅ No unmatched rows in uploaded file.")
