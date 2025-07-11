@@ -3,7 +3,6 @@ import pandas as pd
 import asyncio
 from io import BytesIO
 from utils.data_extraction import *
-from fastapi import HTTPException  # needed for raising errors
 
 
 def upload_csv(file):
@@ -34,7 +33,8 @@ def upload_csv(file):
             return file_url
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print("❌ Error occurred:", str(e))
+        raise Exception(f"Processing error: {str(e)}")
 
 
 def compare_files(uploaded_file):
@@ -112,7 +112,7 @@ def compare_files(uploaded_file):
 
     except Exception as e:
         print("❌ Error occurred:", str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        raise Exception(f"Processing error: {str(e)}")
 
 
 # 🖥️ Streamlit UI
