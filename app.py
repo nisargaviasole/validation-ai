@@ -5,7 +5,7 @@ from io import BytesIO
 from utils.data_extraction import *
 
 
-def upload_csv(file):
+def upload_csv(uploaded_file):
     try:
         file_extension = uploaded_file.name.split(".")[-1].lower()
         if file_extension == "xlsx":
@@ -131,8 +131,8 @@ if option == "🔄 Structure Master File":
         with st.spinner("Processing..."):
             url = upload_csv(file) 
             st.success("✅ File exploded and uploaded successfully.")
-            for name, url in urls:
-                st.markdown(f"📄 **{name}**: [Download File]({url})")
+            # for url in urls:
+            st.markdown(f"📄 [Download File]({url})")
 
 elif option == "📊 Compare with Master":
     st.subheader("Compare Uploaded File with Master File")

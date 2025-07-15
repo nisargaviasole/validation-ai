@@ -10,9 +10,6 @@ load_dotenv()
 connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
 container_name = os.getenv('AZURE_STORAGE_CONTAINER_NAME')
 
-print(f"Connection String: {connection_string}")
-print(f"Container Name: {container_name}")
-
 def get_storage_client(blob_name):
     blob_service_client = BlobServiceClient.from_connection_string(connection_string)
     container_client = blob_service_client.get_container_client(container_name)
